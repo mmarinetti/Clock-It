@@ -2,6 +2,9 @@ import com.employee.*;
 import com.database.*;
 
 public class Main {
+	
+	private Employee[] employees = new Employee[5];
+	int i = 0;
 
 	/**
 	 * @param args Command line arguments

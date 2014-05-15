@@ -71,8 +71,8 @@ public class DatabaseOperations {
 		return false;
 	}
 	
-	public String displayEmployees() {
-		String sql = "SELECT first_name, last_name FROM Employees";
+	public void displayEmployees() {
+		String sql = "SELECT * FROM Employees";
 		
 		try {
 			Statement stmt = conn.createStatement();
@@ -80,9 +80,27 @@ public class DatabaseOperations {
 			System.out.println("Statement Created.");
 			
 			ResultSet rs = stmt.executeQuery(sql);
+			try {
+				while(rs.next()) {
+					String first_name = rs.getString("first_name");
+					String last_name = rs.getString("last_name");
+					int age = rs.getInt("age");
+					int gender = rs.getInt("isMale");
+					
+					Employee e = null;
+					if(gender == 1) {
+						e = new Employee(first_name, last_name, age, Employee.Gender.MALE);
+					} else {
+						e = new Employee(first_name, last_name, age, Employee.Gender.FEMALE);
+					}
+					
+					System.out.println(e);
+				}
+			} catch (SQLException sqle) {
+				System.out.println(sqle);
+			}
 		} catch (SQLException sqle) {
 			System.out.println(sqle);
 		}
-		return null;
 	}
 }
