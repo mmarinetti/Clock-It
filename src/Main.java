@@ -2,36 +2,31 @@ import com.employee.*;
 import com.database.*;
 
 public class Main {
-	
-	private Employee[] employees = new Employee[5];
-	int i = 0;
 
 	/**
 	 * @param args Command line arguments
 	 */
-	public static void main(String[] args) {
-		// Create array of employees
-		Employee[] employees = new Employee[5];
-		
-		Employee employee2 = new Employee("Bob", "Smith", 23, Employee.Gender.MALE);
-		employees[0] = employee2;
-		Employee employee3 = new Employee("Mike", "Marinetti", 22, Employee.Gender.MALE);
-		employee3.setWorking(true);
-		employees[1] = employee3;
-		Employee employee4 = new Employee("Sarah", "Anderson", 19, Employee.Gender.FEMALE);
-		employees[2] = employee4;
-		Employee employee5 = new Employee("124F", "jfs45", -3, Employee.Gender.FEMALE);
-		employees[3] = employee5;
-		StudentEmployee student = new StudentEmployee("Michael", "Hawkins", 21, Employee.Gender.MALE, "A87346159");
-		employees[4] = student;
-		
-		for(Employee e : employees) {
-			System.out.println(e);
+	public static void main(String[] args) {		
+		DatabaseOperations db = new DatabaseOperations();
+		if(!db.connectToDatabase()) {
+			System.out.println("Can't connect to database.");
 		}
 		
-		DatabaseOperations db = new DatabaseOperations();
-		db.connectToDatabase();
+		Employee employee = new Employee("Michael", "Hawkins", 21, Employee.Gender.MALE);
+		employee.setEmployee_id(4);
+		
+		if(!db.AddEmployee(employee)) {
+			System.out.println("Failed to add " + employee.getFirst_name() + " " + employee.getLast_name() + " to database.");
+		}
+		
 		db.displayEmployees();
+		
+		if(!db.RemoveEmployee(employee)) {
+			System.out.println("Failed to remove " + employee.getFirst_name() + " " + employee.getLast_name() + " to database.");
+		}
+		
+		db.displayEmployees();
+		db.closeConnection();
 	}
 
 }

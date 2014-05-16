@@ -41,6 +41,8 @@ public class DatabaseOperations {
 		try {
 			Class.forName(databasePackage);
 			conn = DriverManager.getConnection(databaseURL, "guest", "password");
+			isConnected = true;
+			System.out.println("Connected to database: " + databaseURL);
 		} catch (ClassNotFoundException e) {
 			isConnected = false;
 			e.printStackTrace();
@@ -48,9 +50,6 @@ public class DatabaseOperations {
 			isConnected = false;
 			e.printStackTrace();
 		}
-		
-		isConnected = true;
-		System.out.println("Connected to database: " + databaseURL);
 		
 		return isConnected;
 	}
@@ -64,43 +63,110 @@ public class DatabaseOperations {
 	}
 	
 	public boolean AddEmployee(Employee e) {
-		return false;
+		boolean result = false;
+		if(isConnected) {
+			String sql = "INSERT INTO Employees VALUES (" + e.getEmployee_id() + ",'" + e.getFirst_name() + "','" +
+				e.getLast_name() + "'," + e.getAge() + "," + e.getStart_date() + "," + e.getEnd_date() + ",";
+			
+			if(e.getGender() == Employee.Gender.MALE)
+				sql += "1";
+			else
+				sql += "0";
+			
+			sql += ",";
+			
+			if(e.getWorking())
+				sql += "1";
+			else
+				sql += "0";
+			
+			sql += ")";
+			
+			try {
+				Statement stmt = conn.createStatement();
+				
+				System.out.println("INSERT STATEMENT CREATED.");
+				
+				int r = stmt.executeUpdate(sql);
+				
+				System.out.println("Updated " + r + " records.");
+				result = true;
+			} catch (SQLException sqle) {
+				sqle.printStackTrace();
+			}
+			
+		}
+		return result;
 	}
 	
 	public boolean RemoveEmployee(Employee e) {
-		return false;
+		boolean result = false;
+		if(isConnected) {
+			String sql = "DELETE FROM Employees WHERE first_name='" + e.getFirst_name() + "'AND last_name='" + e.getLast_name() + "'";
+			
+			try {
+				Statement stmt = conn.createStatement();
+				
+				System.out.println(sql);
+				
+				int r = stmt.executeUpdate("DELETE STATEMENT CREATED.");
+				
+				System.out.println("Updated " + r + " records.");
+				result = true;
+			} catch (SQLException sqle) {
+				sqle.printStackTrace();
+			}
+		}
+		return result;
 	}
 	
 	public void displayEmployees() {
-		String sql = "SELECT * FROM Employees";
-		
-		try {
-			Statement stmt = conn.createStatement();
+		if(isConnected) {
+			String sql = "SELECT * FROM Employees";
 			
-			System.out.println("Statement Created.");
-			
-			ResultSet rs = stmt.executeQuery(sql);
 			try {
-				while(rs.next()) {
-					String first_name = rs.getString("first_name");
-					String last_name = rs.getString("last_name");
-					int age = rs.getInt("age");
-					int gender = rs.getInt("isMale");
-					
-					Employee e = null;
-					if(gender == 1) {
-						e = new Employee(first_name, last_name, age, Employee.Gender.MALE);
-					} else {
-						e = new Employee(first_name, last_name, age, Employee.Gender.FEMALE);
+				Statement stmt = conn.createStatement();
+				
+				System.out.println("SELECT STATEMENT CREATED.");
+				
+				ResultSet rs = stmt.executeQuery(sql);
+				try {
+					while(rs.next()) {
+						String first_name = rs.getString("first_name");
+						String last_name = rs.getString("last_name");
+						int age = rs.getInt("age");
+						int gender = rs.getInt("isMale");
+						int isWorking = rs.getInt("working");
+						
+						Employee e = null;
+						if(gender == 1) {
+							e = new Employee(first_name, last_name, age, Employee.Gender.MALE);
+						} else {
+							e = new Employee(first_name, last_name, age, Employee.Gender.FEMALE);
+						}
+						
+						if(isWorking == 1) {
+							e.setWorking(true);
+						}
+						
+						System.out.println(e);
 					}
-					
-					System.out.println(e);
+				} catch (SQLException sqle) {
+					System.out.println(sqle);
 				}
 			} catch (SQLException sqle) {
 				System.out.println(sqle);
 			}
-		} catch (SQLException sqle) {
-			System.out.println(sqle);
+		}
+	}
+	
+	public void closeConnection() {
+		if(isConnected) {
+			try {
+				conn.close();
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
 		}
 	}
 }
