@@ -109,7 +109,7 @@ public class DatabaseOperations {
 				
 				System.out.println(sql);
 				
-				int r = stmt.executeUpdate("DELETE STATEMENT CREATED.");
+				int r = stmt.executeUpdate(sql);
 				
 				System.out.println("Updated " + r + " records.");
 				result = true;
